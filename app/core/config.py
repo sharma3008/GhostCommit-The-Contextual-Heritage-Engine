@@ -10,7 +10,12 @@ class Settings(BaseSettings):
 
     database_url: str = ""  # required via .env at runtime
 
+    github_webhook_secret: str = ""  # required via .env at runtime
+
     log_level: str = "INFO"
+
+    pii_redaction_enabled: bool = True
+    pii_redaction_mode: str = "balanced"
 
 
 settings = Settings()
