@@ -9,7 +9,8 @@
   },
   "categories": ["Other"],
   "activationEvents": [
-    "onCommand:ghostcommit.test"
+    "onCommand:ghostcommit.test",
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -24,14 +25,24 @@
       "properties": {
         "ghostcommit.apiBaseUrl": {
           "type": "string",
-          "default": "http://localhost:8000",
-          "description": "GhostCommit API base URL (e.g., http://localhost:8000)"
+          "default": "http://127.0.0.1:8000",
+          "description": "GhostCommit API base URL (e.g., http://127.0.0.1:8000)"
         },
         "ghostcommit.apiToken": {
           "type": "string",
           "default": "",
           "description": "GhostCommit API token (if enabled on the server)",
           "markdownDescription": "GhostCommit API token (if enabled on the server). Stored in settings; prefer using VS Code SecretStorage in later issues."
+        },
+        "ghostcommit.repoOwner": {
+          "type": "string",
+          "default": "sharma3008",
+          "description": "Default GitHub repository owner for GhostCommit context lookups."
+        },
+        "ghostcommit.repoName": {
+          "type": "string",
+          "default": "GhostCommit-The-Contextual-Heritage-Engine",
+          "description": "Default GitHub repository name for GhostCommit context lookups."
         }
       }
     }
