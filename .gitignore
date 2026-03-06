@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+node_modules/
+dist/
+out/
+extensions/**/node_modules/
+extensions/**/dist/
+
+.DS_Store
+__MACOSX/
+*.zip
+.env
