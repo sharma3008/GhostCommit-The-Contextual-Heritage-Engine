@@ -5,9 +5,9 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
-# Import your settings so Alembic uses DATABASE_URL from .env
+from app import models  # noqa: F401  (ensure models are imported)
 from app.core.config import settings
+from app.db.base import Base
 
 # Alembic Config object (reads alembic.ini)
 config = context.config
@@ -16,8 +16,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Phase 1: no models yet (we'll wire Base.metadata in Phase 2)
-target_metadata = None
+target_metadata = Base.metadata
 
 
 def get_url() -> str:

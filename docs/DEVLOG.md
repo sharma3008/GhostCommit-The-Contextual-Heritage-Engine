@@ -1,87 +1,138 @@
 # GhostCommit – Development Log
 
-This file documents major technical decisions and progress milestones.
+Chronological record of major engineering decisions and milestones.
 
 ---
 
-## 2026-02-23 — Phase 1 Complete
+## 2026-02-23 — Phase 1 Foundations
 
-### What Was Done
+### Completed
 - Initialized repository structure
-- Created Docker Compose stack (API + Postgres)
-- Implemented health and readiness endpoints
-- Configured Pydantic BaseSettings for .env config
-- Added structlog structured logging
-- Set up Ruff, MyPy, Pytest
-- Fixed ruff import sorting issues
-- Added default database_url to satisfy MyPy
-- Aligned CI to use `python -m` execution
+- Docker Compose stack (API + Postgres)
+- Health and readiness endpoints
+- BaseSettings configuration
+- Structured logging with Structlog
+- Ruff + MyPy + Pytest setup
+- CI pipeline configured
 - Confirmed CI green
 
-### Why These Decisions
+### Key Decisions
 
-**Docker First Approach**
-Ensures environment parity between local and CI.
+**Strict lint + type enforcement early**
+Prevents long-term technical debt.
 
-**Strict Lint + Type Enforcement Early**
-Prevents technical debt accumulation.
-
-**Structured Logging From Day 1**
-Allows future observability expansion without refactor.
+**Docker-first workflow**
+Ensures environment consistency across dev and CI.
 
 ---
 
 ## 2026-02-23 — Phase 2 Schema Design
 
-### What Was Done
-- Designed core relational schema:
+### Completed
+- Designed relational schema:
   - tenants
   - repos
   - pull_requests
   - rationale_summaries
   - audit_logs
-- Implemented SQLAlchemy models
-- Generated Alembic migrations
-- Added uniqueness constraints:
-  - repo uniqueness per tenant
+- Added unique constraints:
+  - Repo uniqueness per tenant
   - PR uniqueness per repo
-- Created seed script for local testing
+- Generated Alembic migrations
+- Created seed script
 
-### Why This Design
+### Design Rationale
 
-**Multi-Tenant From Start**
-Even though solo MVP, architecture anticipates SaaS.
+**Multi-tenant from start**
+Prepares system for SaaS model.
 
-**Store Raw Payload**
+**Store raw webhook payload**
 Allows:
 - Reprocessing
+- Debugging
 - Re-summarization
-- Debugging webhook issues
-
-**Explicit Unique Constraints**
-Guarantees data correctness at DB level, not just application layer.
 
 ---
 
 ## 2026-02-23 — Webhook Signature Verification (Issue #6)
 
-### What Was Done
+### Completed
 - Implemented HMAC SHA256 verification
-- Validated X-Hub-Signature-256
-- Enforced 401 on invalid signatures
-- Verified using local OpenSSL signature generation
+- Enforced 401 on invalid signature
+- Verified using OpenSSL locally
 
-### Lessons Learned
+### Lessons
 - Structlog reserves `event` keyword
-- Always use `python -m` in CI
-- Curl can mutate request body unless using --data-binary
+- Always use `--data-binary` with curl for exact payload
+- CI must use `python -m`
 
 ---
 
-## Next Milestone
-Issue #7 — PR ingestion:
+## 2026-02-23 — PR Ingestion (Issue #7)
 
-- Parse pull_request event
+### Completed
+- Parse pull_request webhook event
 - Upsert PR metadata
-- Detect merge event
 - Store raw payload
+- Handle merged/open state transitions
+
+---
+
+## 2026-02-23 — PII Redaction Layer (Issue #8)
+
+### Completed
+- Implemented deterministic regex redaction
+- Added recursive JSON support
+- Added unit tests
+- Config toggle for enabling/disabling redaction
+
+### Why
+
+Protect secrets from leaking into LLM prompts.
+
+---
+
+## 2026-02-24 — Summary Generation Engine (Issue #9)
+
+### Completed
+- Introduced LLM abstraction layer
+- Implemented DeterministicLLM
+- Created SummarizerService
+- Enforced structured JSON output
+- Extracted and normalized risk_level
+- Persisted summary_json + risk_level
+- Added /summaries/generate endpoint
+- Added /context retrieval endpoint
+- Added SQLite StaticPool test harness
+- Fixed FastAPI dependency injection edge cases
+- Achieved full Ruff + MyPy + Pytest clean state
+
+### Architectural Decisions
+
+**Store entire LLM output as JSON text**
+- Allows re-parsing later
+- Enables schema evolution
+- Avoids premature flattening
+
+**Synchronous generation (for now)**
+- Simpler architecture
+- Easier debugging
+- Background jobs planned later
+
+---
+
+## Current Status
+
+System is:
+
+- Fully type-safe
+- CI-enforced
+- Deterministic and testable
+- Multi-tenant ready
+- PII-safe before LLM invocation
+- Structured AI output stored and retrievable
+
+Next planned milestone:
+- Versioned summaries (Issue #10)
+- Real LLM provider integration
+- Background job processing
